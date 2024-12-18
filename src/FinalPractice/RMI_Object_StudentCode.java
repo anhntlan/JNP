@@ -1,4 +1,3 @@
-
 package FinalPractice;
 //[Mã câu hỏi (qCode): 89JmMRKO].  Một chương trình (tạm gọi là RMI Server) cung cấp giao diện cho phép triệu gọi từ xa để xử lý thông tin sinh viên trong hệ thống quản lý giáo dục. Chương trình sẽ ngẫu nhiên tạo ra đối tượng Student với các giá trị ban đầu và cung cấp cho RMI client như sau:
 //
@@ -30,6 +29,62 @@ package FinalPractice;
 //c. Cập nhật giá trị mã (code) và tên (name) trong đối tượng Student và 
 //d. Triệu gọi phương thức submitObject để gửi đối tượng Student đã được xử lý trở lại server.
 //e. Kết thúc chương trình client.
+
+import RMI.ObjectService;
+import RMI.Student;
+import java.rmi.*;
+import java.rmi.registry.*;
+
 public class RMI_Object_StudentCode {
+
+    public static void main(String[] args) throws RemoteException, NotBoundException {
+        Registry registry = LocateRegistry.getRegistry("203.162.10.109", 1099);
+        ObjectService objectService = (ObjectService) registry.lookup("RMIObjectService");
+
+        String studentCode = "B21DCCN157";
+        String qCode = "89JmMRKO";
+        Student student = (Student) objectService.requestObject(studentCode, qCode);
+
+        System.out.println(student);
+        int twolast = student.getEnrollmentYear() %100;
+        String newName = chuan(student.getName());
+       // System.out.println(newName);
+        student.setName(newName);
+        
+        String nameInCode = lay(newName);
+        String newCode = "B"+ String.valueOf(twolast)+ nameInCode;
+      //  System.out.println(newCode);
+        student.setCode(newCode);
+        System.out.println("new Student: "+ student);
+        objectService.submitObject(studentCode, qCode, student);
+        
+    }
+
+    private static String chuan(String name) {
+        String res = "";
+        String[] words = name.split("\\s+");
+        int len = words.length;
+        for (int i = 0; i < len; i++) {
+            res += words[i].substring(0, 1).toUpperCase() + words[i].substring(1, words[i].length()).toLowerCase();
+              if(i < len -1)  {
+                   res += " ";
+              }
+            
+        }
+       // res += words[len-1].toUpperCase();
+        return res;
+    }
+
+    private static String lay(String newName) {
+        String res = "";
+        String[] words = newName.split("\\s+");
+        int len = words.length;
+        for (int i = 0; i < len-1; i++) {
+            res += words[i].substring(0, 1);
+            
+        }
+        res = words[len-1].toUpperCase() +"_"+res;
+        return res;
+    }
     
 }
